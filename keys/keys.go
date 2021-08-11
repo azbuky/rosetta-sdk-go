@@ -16,12 +16,13 @@ package keys
 
 import (
 	"crypto/ecdsa"
-	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"math/big"
+
+	"github.com/vitelabs/go-vite/crypto/ed25519"
 
 	"github.com/btcsuite/btcd/btcec"
 
@@ -81,16 +82,21 @@ func ImportPrivateKey(privKeyHex string, curve types.CurveType) (*KeyPair, error
 			PrivateKey: rawPrivKey.Serialize(),
 		}
 	case types.Edwards25519:
-		rawPrivKey := ed25519.NewKeyFromSeed(privKey)
+		var privKeyBytes [32]byte 
+		copy(privKeyBytes[:], privKey)
+		publicKey, rawPrivKey, err := ed25519.GenerateKeyFromD(privKeyBytes)
+		if err != nil {
+			return nil, err
+		}
 
 		pubKey := &types.PublicKey{
-			Bytes:     rawPrivKey.Public().(ed25519.PublicKey),
+			Bytes:     publicKey,
 			CurveType: curve,
 		}
 
 		keyPair = &KeyPair{
 			PublicKey:  pubKey,
-			PrivateKey: rawPrivKey.Seed(),
+			PrivateKey: rawPrivKey[:32],
 		}
 	case types.Secp256r1:
 		crv := elliptic.P256()
@@ -165,7 +171,7 @@ func GenerateKeypair(curve types.CurveType) (*KeyPair, error) {
 
 		keyPair = &KeyPair{
 			PublicKey:  pubKey,
-			PrivateKey: rawPrivKey.Seed(),
+			PrivateKey: rawPrivKey[:32],
 		}
 	case types.Secp256r1:
 		crv := elliptic.P256()

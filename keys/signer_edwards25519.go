@@ -15,8 +15,9 @@
 package keys
 
 import (
-	"crypto/ed25519"
 	"fmt"
+
+	"github.com/vitelabs/go-vite/crypto/ed25519"
 
 	"github.com/coinbase/rosetta-sdk-go/asserter"
 	"github.com/coinbase/rosetta-sdk-go/types"
@@ -62,8 +63,12 @@ func (s *SignerEdwards25519) Sign(
 		)
 	}
 
-	privKeyBytes := s.KeyPair.PrivateKey
-	privKey := ed25519.NewKeyFromSeed(privKeyBytes)
+	var privKeyBytes [32]byte 
+	copy(privKeyBytes[:], s.KeyPair.PrivateKey)
+	_, privKey, err := ed25519.GenerateKeyFromD(privKeyBytes)
+	if err != nil {
+		return nil, err
+	}
 	sig := ed25519.Sign(privKey, payload.Bytes)
 
 	return &types.Signature{

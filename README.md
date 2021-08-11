@@ -1,4 +1,8 @@
 <p align="center">
+** Modified Rosetta Go SDK that uses blake2b hash function instead of sha512 for Ed25519 **
+</p>
+
+<p align="center">
   <a href="https://www.rosetta-api.org">
     <img width="90%" alt="Rosetta" src="https://www.rosetta-api.org/img/rosetta_header.png">
   </a>
